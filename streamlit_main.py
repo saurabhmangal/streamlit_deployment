@@ -4,7 +4,7 @@ import home
 from univariate import *
 import bivariate
 import linearreg
-import geoplot
+#import geoplot
 import conclusion
 import streamlit as st
 import pandas as pd
@@ -31,8 +31,8 @@ elif options == 'Univariate Plots':
     univariate_tab(dataframe)
 elif options == 'Bivariate & Multivariate Plots':
     bivariate.biplot()
-elif options == 'Geospatial Plots & Analysis':
-    geoplot.geo()
+#elif options == 'Geospatial Plots & Analysis':
+#    geoplot.geo()
 elif options == 'Machine Learning':
     linearreg.reg()
 elif options == 'Conclusion and Recommendation':
