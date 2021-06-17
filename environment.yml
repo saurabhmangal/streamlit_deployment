@@ -1,9 +1,0 @@
-name: streamlit_testing
-channels:
-  - bokeh
-  - conda-forge
-  - defaults
-dependencies:
-  - numpy=1.20.3=py39h6635163_1
-prefix: C:\Users\saurabh.mangal\.conda\envs\streamlit_testing
-
