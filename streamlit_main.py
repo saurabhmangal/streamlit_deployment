@@ -11,7 +11,7 @@ import pandas as pd
 sb.set()  # set the default Seaborn style for graphics
 
 # creating individual dataframes for all numerical variables
-dataframe = pd.read_csv("C:/Users/Administrator/Downloads/ExportDataFrame.csv", header=0)
+dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 pricedf = pd.DataFrame(dataframe['price'])
 freightdf = pd.DataFrame(dataframe['freight_value'])
 volumedf = pd.DataFrame(dataframe['volume'])
