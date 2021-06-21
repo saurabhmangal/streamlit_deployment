@@ -8,48 +8,51 @@ import streamlit
 
 sb.set()  # set the default Seaborn style for graphics
 
-#dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
- 
-@st.cache
-def uni_plot(series, variable_type,plot_type):
-    if (plot_type == "Boxplot"):
-        fig = px.box(series, y=variable_type)
-    if (plot_type == "Histogram"):
-        fig = px.histogram(series, x=variable_type)
-    if (plot_type == "Violin Plot"):
-        fig = px.violin(series, y=variable_type)
-    
-    return(fig)
+
+# dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 
 @st.cache
-def count_plot(series,variable_type):
-    fig, axes = plt.subplots(figsize=(5, 5))
-    sb.countplot(x=variable_type, data=series)
+def uni_plot(series, variable_type, plot_type):
+    if plot_type == "Boxplot":
+        fig = px.box(series, y=variable_type)
+    if plot_type == "Histogram":
+        fig = px.histogram(series, x=variable_type)
+    if plot_type == "Violin Plot":
+        fig = px.violin(series, y=variable_type)
+
     return (fig)
 
-@st.cache    
-def remove_outlier_IQR(series,var_type):
-        Q1 = series.quantile(0.25)
-        Q3 = series.quantile(0.75)
-        IQR = Q3 - Q1
-        series_wo_outlier = series[~((series < (Q1 - 1.5 * IQR)) | (series > (Q3 + 1.5 * IQR)))]
-        print (series_wo_outlier)
-        return (series_wo_outlier)
 
-def streamlit_uni_analysis(series,variable_type,plot_type):
-    if (variable_type != "review_score"):
-        st.write(uni_plot(series, variable_type,plot_type))#.show()
-    
-    else:
+@st.cache
+def count_plot(series, variable_type):
+    fig, axes = plt.subplots(figsize=(5, 5))
+    sb.countplot(x=series(variable_type))
+    return fig
+
+
+@st.cache
+def remove_outlier_IQR(series, var_type):
+    Q1 = series.quantile(0.25)
+    Q3 = series.quantile(0.75)
+    IQR = Q3 - Q1
+    series_wo_outlier = series[~((series < (Q1 - 1.5 * IQR)) | (series > (Q3 + 1.5 * IQR)))]
+    print(series_wo_outlier)
+    return series_wo_outlier
+
+
+def streamlit_uni_analysis(series, variable_type, plot_type):
+    if variable_type == 'review_score':
         st.write("Since Review Scores can only hold values from 1 to 5, this is a categorical variable. Hence it would "
-                 "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed to "
-                 "conventional numerical plots like box plot,histogram and violin plot.")
-        st.write(count_plot(series,variable_type))
-        
+                 "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed "
+                 "to conventional numerical plots like box plot,histogram and violin plot.")
+        st.write(count_plot(series, 'review_score'))
+    else:
+        st.write(uni_plot(series, variable_type, plot_type))  # .show()
+
     st.subheader("Basic Summary Statistics")
     st.write("FOllowing are the statistical observations for:", variable_type)
-    st.write(series.describe())    
-    
+    st.write(series.describe())
+
     std = int(series.std())
     max_val = int(series.max())
     if std >= (max_val / 2):
@@ -59,9 +62,7 @@ def streamlit_uni_analysis(series,variable_type,plot_type):
     else:
         st.write(
             "This plot has a low standard deviation relative to it's maximum. This suggests that most points are "
-            "clustered to a mean.")        
-
-
+            "clustered to a mean.")
 
 
 def univariate_tab(dataframe):
@@ -70,7 +71,7 @@ def univariate_tab(dataframe):
     st.write("Here we have chosen 5 numerical variables that we believe have potential to affect delivery service. We "
              "have presented, Boxplots, Histograms and Violin plots for the same. (Price, Freight Value, Volume, "
              "Weight, Review Score).")
-    
+
     # select boxes so user can choose variable and type of plot
     variable_types = ["price",
                       "volume",
@@ -78,43 +79,41 @@ def univariate_tab(dataframe):
                       "freight_value",
                       "review_score",
                       "delivery_days"]
-    
-    plots = ["Boxplot","Histogram","Violin Plot"]
-        
+
+    plots = ["Boxplot", "Histogram", "Violin Plot"]
+
     variable_type = st.selectbox("Choose your variable", variable_types)
     plot_type = st.selectbox("Choose which plot you want", plots)
-        
+
     # calling above method and branching according to user input
     outlier = st.checkbox('Remove Outliers')
     # variable_type = variable_types[0]
     # plot_type = plots[0]
-    #st.write(plot_type)  
-    #st.write(variable_type)
-    print (plot_type)
-    print (variable_type)
-    
-    #variable_type = "review_score"
-    
+    # st.write(plot_type)
+    # st.write(variable_type)
+    print(plot_type)
+    print(variable_type)
+
+    # variable_type = "review_score"
+
     if outlier:
-        series_wo_outlier = remove_outlier_IQR(dataframe[variable_type],variable_type)
-        streamlit_uni_analysis(series_wo_outlier,variable_type,plot_type)
-    
+        series_wo_outlier = remove_outlier_IQR(dataframe[variable_type], variable_type)
+        streamlit_uni_analysis(series_wo_outlier, variable_type, plot_type)
     else:
-        streamlit_uni_analysis(dataframe[variable_type],variable_type,plot_type)
-        
+        streamlit_uni_analysis(dataframe[variable_type], variable_type, plot_type)
+
 #     if (variable_type != "review_score"):
 #         st.write(uni_plot(dataframe[variable_type], variable_type,plot_type))#.show()
-    
-#     else:
-#         st.write("Since Review Scores can only hold values from 1 to 5, this is a categorical variable. Hence it would "
-#                  "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed to "
-#                  "conventional numerical plots like box plot,histogram and violin plot.")
-#         st.write(count_plot(dataframe[variable_type],variable_type))
-        
+
+# else: st.write("Since Review Scores can only hold values from 1 to 5, this is a categorical variable. Hence it
+# would " "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed to "
+# "conventional numerical plots like box plot,histogram and violin plot.") st.write(count_plot(dataframe[
+# variable_type],variable_type))
+
 #     st.subheader("Basic Summary Statistics")
 #     st.write("FOllowing are the statistical observations for:", variable_type)
-#     st.write(dataframe[variable_type].describe())    
-    
+#     st.write(dataframe[variable_type].describe())
+
 #     std = int(dataframe[variable_type].std())
 #     max_val = int(dataframe[variable_type].max())
 #     if std >= (max_val / 2):
@@ -127,17 +126,16 @@ def univariate_tab(dataframe):
 #             "clustered to a mean.")
 
 
-
 # fig = px.box(dataframe["price"],y="price")
 # st.write(fig)
 
 # =============================================================================
-# 
+#
 #     fig, axes = plt.subplots(figsize=(10, 10))
 #     st.write(sb.countplot(x='review_score', data=dataframe["review_score"]))
 #     st.pyplot(fig)
-# 
-# 
+#
+#
 # else:
 #     st.write("Since Review Scores can only hold values from 1 to 5, this is a categorical variable. Hence it would "
 #              "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed to "
@@ -145,12 +143,12 @@ def univariate_tab(dataframe):
 #     fig, axes = plt.subplots(figsize=(10, 10))
 #     st.write(sb.countplot(x='review_score', data=dataframe["review_score"]))
 #     st.pyplot(fig)
-#     
-#     
-#     
-#     
+#
+#
+#
+#
 #     stats(reviewdf)
-#     
+#
 #     def uni_plot(df, variable_type,plot_type):
 #         if (variable_type != "Review Rating"):
 #             if (plot_type == "Boxplot"):
@@ -167,32 +165,32 @@ def univariate_tab(dataframe):
 #             fig, axes = plt.subplots(figsize=(10, 10))
 #             st.write(sb.countplot(x='review_score', data=dataframe["review_score"]))
 #             st.pyplot(fig)
-#             stats(reviewdf)        
+#             stats(reviewdf)
 #         return (fig)
-#     
+#
 #     st.write(uni_plot)
 #     stats(variable_type,dataframe)
-#             
-#             
-#             
-#     
+#
+#
+#
+#
 # # =============================================================================
 # #     # method to display boxplot
 # #     def boxplot(df, variable_type):
 # #         fig = px.box(df, y=variable_type)
 # #         st.write(fig)
-# # 
+# #
 # #     # method to display histplot
 # #     def histplot(df, variable_type):
 # #         fig = px.histogram(df, x=variable_type)
 # #         st.write(fig)
-# # 
+# #
 # #     # method to display violinplot
 # #     def violinplot(df, variable_type):
 # #         fig = px.violin(df, y=variable_type)
 # #         st.write(fig)
 # # =============================================================================
-# 
+#
 #     def show_plot(kind: str, plot: str):
 #         st.write(kind)
 #         if kind == "Price":
@@ -249,8 +247,8 @@ def univariate_tab(dataframe):
 #             if plot == "Violin Plot":
 #                 violinplot(daysdf, variable)
 #             stats(daysdf)
-#             
-#             
+#
+#
 #      # method to display summary statistics and compute dynamic analysis on statistcs
 #     def stats(variable_type,dataframe):
 #         df = pd.Dataframe(dataframe[variable_type])
@@ -269,10 +267,10 @@ def univariate_tab(dataframe):
 #             st.write(
 #                 "This plot has a low standard deviation relative to it's maximum. This suggests that most points are "
 #                 "clustered to a mean.")
-# 
+#
 #             # function with nested selection statements to navigate functionality based on user's input
-# 
-# 
+#
+#
 #     # method to remove outliers and return new dataset
 #     def remove_outlier_IQR(df):
 #         Q1 = df.quantile(0.25)
@@ -280,7 +278,7 @@ def univariate_tab(dataframe):
 #         IQR = Q3 - Q1
 #         df_final = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR)))]
 #         return df_final
-# 
+#
 #     # calling above method and branching according to user input
 #     outlier = st.checkbox('Remove Outliers')
 #     if outlier:
@@ -295,7 +293,7 @@ def univariate_tab(dataframe):
 #         volumedf = pd.DataFrame(dataframe['volume'])
 #         weightdf = pd.DataFrame(dataframe['product_weight_g'])
 #         daysdf = pd.DataFrame(dataframe['delivery_days'])
-# 
+#
 #     # command to display plot based on select box input
 #     show_plot(kind=variable_type, plot=plot_type)
 # '''
