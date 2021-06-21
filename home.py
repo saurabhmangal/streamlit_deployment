@@ -6,7 +6,7 @@ import seaborn as sb
 sb.set()  # set the default Seaborn style for graphics
 
 
-def home():
+def home(dataframe):
     st.title("Analysing O-list's Delivery Service")
     st.write("O-list is a Brazilian based e-commerce company that provides a platform for both sellers to display and "
              "buyers to buy various types of products. This investigation takes a data driven approach to analyse and "
