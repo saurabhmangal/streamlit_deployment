@@ -30,7 +30,7 @@ def count_plot(series, variable_type):
     return fig
 
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def remove_outlier_IQR(series, var_type):
     Q1 = series.quantile(0.25)
     Q3 = series.quantile(0.75)
