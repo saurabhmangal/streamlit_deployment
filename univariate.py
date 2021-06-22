@@ -102,3 +102,4 @@ def univariate_tab(dataframe):
         streamlit_uni_analysis(series_wo_outlier, variable_type, plot_type)
     else:
         streamlit_uni_analysis(dataframe, variable_type, plot_type)
+
