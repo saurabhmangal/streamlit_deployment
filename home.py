@@ -1,6 +1,5 @@
 # Basic Libraries
 import streamlit as st
-import pandas as pd
 import seaborn as sb
 
 sb.set()  # set the default Seaborn style for graphics

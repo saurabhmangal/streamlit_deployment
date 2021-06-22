@@ -30,10 +30,10 @@ def calculate_distance(dataframe):
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
         distance = R * c
         dataframe.loc[i, 'distance'] = distance
-    return dataframe
 
-
+@st.cache
 def subplot(y_train, y_train_pred, y_test, y_test_pred):
+
     # Plot the Predictions vs the True values for TRAIN data
     f, axes = plt.subplots(1, 2, figsize=(24, 12))
     axes[0].scatter(y_train, y_train_pred, color="blue")
@@ -48,6 +48,12 @@ def subplot(y_train, y_train_pred, y_test, y_test_pred):
     axes[1].set_ylabel("Predicted values of the Response Variable (Test)")
     return f
 
+@st.cache
+def splitdata(numdf):
+    # Split the Dataset into Train and Test
+    X = numdf.iloc[:, 1:7].values  # saving parameters/features/independent variables in X
+    y = numdf.iloc[:, 0].values  # saving delivery day (dependant variable/what we want to estimate) in y
+    return X, y
 
 @st.cache
 # function to generate table with statistics on accuracy + goodness of fit of model
@@ -61,7 +67,6 @@ def table(y_train, y_train_pred, y_test, y_test_pred):
     table_display = pd.DataFrame(table_data, columns=["Statistics", " Train Dataset", "Test Dataset"])
     return table_display
 
-
 @st.cache
 # function that gives dynamic analysis based on numerical values in statistic table
 def table_analysis(y_train, y_train_pred, y_test, y_test_pred):
@@ -71,12 +76,11 @@ def table_analysis(y_train, y_train_pred, y_test, y_test_pred):
     elif mean_squared_error(y_train, y_train_pred) < mean_squared_error(y_test, y_test_pred):
         text = "Model is over fit, as train data MSE is lower than test data MSE"
     else:
-        text = "Model is fit, with relatively low variance, low train and test MSE, and is not bias since train data " \
-               "MSE is not smaller than test data MSE "
+        text = "Model is fit, with relatively low variance, low train and test MSE, and is not bias since train data MSE is not smaller than test data MSE"
 
     return text
 
-
+@st.cache
 # making a residual plot + hard coded analysis
 def residual(y_train, y_train_pred, y_test, y_test_pred):
     f, axes = plt.subplots(1, 2, figsize=(24, 12))
@@ -85,14 +89,19 @@ def residual(y_train, y_train_pred, y_test, y_test_pred):
     return f
 
 
-def Linear_model(dataframe, X, y):
+def linearmodel(dataframe):
     st.write("## Multivariate Linear Regression")
+
+    calculate_distance(dataframe)
 
     # check box asking user whether they want to consider distance as a parameter
     distancecb = st.checkbox("Include 'distance' as a parameter to improve R^2 value")
+
+    # branching statements depending on user input
     if distancecb:
         y = pd.DataFrame(dataframe["delivery_days"])
-        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+        X = pd.DataFrame(
+            dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
     else:
         y = pd.DataFrame(dataframe["delivery_days"])
         X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g"]])
@@ -100,7 +109,6 @@ def Linear_model(dataframe, X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
     st.write("### Visualising predicted and actual data")
-
     # Linear Regression using Train Data
     linreg = LinearRegression()  # create the linear regression object
     linreg.fit(X_train, y_train)  # train the linear regression model
@@ -113,7 +121,7 @@ def Linear_model(dataframe, X, y):
     # st.text("")
 
     # plotting train and test data in graphs side by side
-    st.write(subplot(y_train, y_train_pred, y_test, y_test_pred))
+    subplot(y_train, y_train_pred, y_test, y_test_pred)
 
     # making error table
     st.write("### Error metrics")
@@ -133,8 +141,18 @@ def Linear_model(dataframe, X, y):
 
 
 # RANDOM FOREST REGRESSION
-def RandomForest_model(dataframe, X, y):
+def RandomForestmodel(dataframe):
     st.write("## Random Forest Regression")
+
+    # creating new dataframe to store numerical variables
+    numdf = pd.DataFrame(dataframe[['delivery_days', 'price', 'volume', 'product_weight_g', 'freight_value', 'distance']])
+
+    st.write("### Cleaning and Splitting Data")
+    X, y = splitdata(numdf)
+
+    # displaying dataframe to allow user to visualise what we have done
+    st.write("First we have created a new dataframe to store the numerical variables from our main dataframe.")
+    st.write(numdf)
 
     # splitting data into train and test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)  # Feature Scaling
@@ -147,7 +165,7 @@ def RandomForest_model(dataframe, X, y):
     y_test_pred = clf.predict(X_test)
 
     # plotting train and test data in graphs side by side
-    st.write(subplot(y_train, y_train_pred, y_test, y_test_pred))
+    subplot(y_train, y_train_pred, y_test, y_test_pred)
 
     # creating a statistic table
     st.write("### Error metrics")
@@ -170,11 +188,9 @@ def ML_tab(dataframe):
     models = ("Linear Regression", "Random Forest Regression")
     model_type = st.selectbox("Choose your model", models)
 
-    dataframe = calculate_distance(dataframe)
-    y = pd.DataFrame(dataframe["delivery_days"])
-    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+    calculate_distance(dataframe)
 
     if model_type == "Linear Regression":
-        Linear_model(dataframe, X, y)
+        linearmodel(dataframe)
     elif model_type == "Random Forest Regression":
-        RandomForest_model(dataframe, X, y)
+        RandomForestmodel(dataframe)

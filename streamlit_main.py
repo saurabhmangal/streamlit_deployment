@@ -24,6 +24,8 @@ color: #ffffff;
 """,
 unsafe_allow_html=True,)
 
+st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='expanded')
+
 # creating individual dataframes for all numerical variables
 dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 #pricedf = pd.DataFrame(dataframe['price'])
@@ -42,10 +44,17 @@ options = st.sidebar.radio('Select a page:',
      'Geospatial Plots & Analysis',
      'Machine Learning',
      'Conclusion and Recommendation'])
+<<<<<<< HEAD
      
 if options == 'Home':
     home.home(dataframe)
 
+=======
+
+if options == 'Home':
+    home.home(dataframe)
+    
+>>>>>>> 685266dc7977f23f7bd7434072bacc8a95e96a5d
 elif options == 'Univariate Plots':
     univariate.univariate_tab(dataframe)
 
@@ -53,7 +62,11 @@ elif options == 'Bivariate & Multivariate Plots':
     bivariate.bivariate_tab(dataframe)
 
 elif options == 'Geospatial Plots & Analysis':
+<<<<<<< HEAD
     geoplot.geo()
+=======
+    geoplot.geo(dataframe)
+>>>>>>> 685266dc7977f23f7bd7434072bacc8a95e96a5d
 
 elif options == 'Machine Learning':
     MLtab.ML_tab(dataframe)
