@@ -30,9 +30,9 @@ def calculate_distance(dataframe):
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
         distance = R * c
         dataframe.loc[i, 'distance'] = distance
+    return dataframe
 
 
-@st.cache
 def subplot(y_train, y_train_pred, y_test, y_test_pred):
     # Plot the Predictions vs the True values for TRAIN data
     f, axes = plt.subplots(1, 2, figsize=(24, 12))
@@ -77,7 +77,6 @@ def table_analysis(y_train, y_train_pred, y_test, y_test_pred):
     return text
 
 
-@st.cache
 # making a residual plot + hard coded analysis
 def residual(y_train, y_train_pred, y_test, y_test_pred):
     f, axes = plt.subplots(1, 2, figsize=(24, 12))
@@ -92,9 +91,11 @@ def Linear_model(dataframe, X, y):
     # check box asking user whether they want to consider distance as a parameter
     distancecb = st.checkbox("Include 'distance' as a parameter to improve R^2 value")
     if distancecb:
-        pass
+        y = pd.DataFrame(dataframe["delivery_days"])
+        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
     else:
-        X.drop('distance')
+        y = pd.DataFrame(dataframe["delivery_days"])
+        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g"]])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
@@ -112,7 +113,7 @@ def Linear_model(dataframe, X, y):
     # st.text("")
 
     # plotting train and test data in graphs side by side
-    subplot(y_train, y_train_pred, y_test, y_test_pred)
+    st.write(subplot(y_train, y_train_pred, y_test, y_test_pred))
 
     # making error table
     st.write("### Error metrics")
@@ -135,8 +136,6 @@ def Linear_model(dataframe, X, y):
 def RandomForest_model(dataframe, X, y):
     st.write("## Random Forest Regression")
 
-    st.write("### Cleaning and Splitting Data")
-
     # splitting data into train and test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)  # Feature Scaling
 
@@ -148,7 +147,7 @@ def RandomForest_model(dataframe, X, y):
     y_test_pred = clf.predict(X_test)
 
     # plotting train and test data in graphs side by side
-    subplot(y_train, y_train_pred, y_test, y_test_pred)
+    st.write(subplot(y_train, y_train_pred, y_test, y_test_pred))
 
     # creating a statistic table
     st.write("### Error metrics")
@@ -171,9 +170,9 @@ def ML_tab(dataframe):
     models = ("Linear Regression", "Random Forest Regression")
     model_type = st.selectbox("Choose your model", models)
 
-    calculate_distance(dataframe)
+    dataframe = calculate_distance(dataframe)
     y = pd.DataFrame(dataframe["delivery_days"])
-    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", 'distance']])
+    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
 
     if model_type == "Linear Regression":
         Linear_model(dataframe, X, y)
