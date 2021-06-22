@@ -10,7 +10,7 @@ import streamlit as st
 import pandas as pd
 sb.set()  # set the default Seaborn style for graphics
 
-streamlit.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='expanded')
+st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='expanded')
 
 # creating individual dataframes for all numerical variables
 dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
