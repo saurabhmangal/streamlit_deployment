@@ -28,6 +28,7 @@ reviewdf = pd.DataFrame(dataframe['review_score'])
 daysdf = pd.DataFrame(dataframe['delivery_days'])
 
 def geo():
+
     st.write('## Geospatial Data Analysis')
 
     # converting all longitude and latitude data to type float, so bokeh can read coordinates

@@ -4,18 +4,47 @@ import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt  # we only need pyplot
 import plotly.express as px
+from univariate import *
+
 
 # function to plot a plotly scatter plot
+@st.cache
 def plot(df, variable):
     fig = px.scatter(df, x="delivery_days", y=variable)
-    st.write(fig)
-    cor = df["delivery_days"].corr(df[variable])
-    cor = round(cor, 2)
-    st.write("The correlation of delivery days and", variable, "is", cor)
+    return fig
 
-def biplot():
-    # creating individual dataframes for all numerical variables
-    dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
+
+# function to create multivariate heatmap
+def heatmap(numDF):
+    fig = plt.figure(figsize=(12, 12))
+    sb.heatmap(numDF.corr(), vmin=-1, vmax=1, annot=True, fmt=".2f")
+    return fig
+
+
+# function to compute analysis based on summary statistics
+@st.cache
+def bivariate_cor(dataframe, variable_type, old_dataframe):
+    if variable_type == "review_score":
+        cor = dataframe["delivery_days"].corr(dataframe["review_score"])
+        return cor
+    else:
+        cor = dataframe["delivery_days"].corr(dataframe[variable_type])
+        cor = round(cor, 2)
+        return cor
+
+
+# function to display plot
+@st.cache
+def bivariate_plot(dataframe, variable_type, old_dataframe):
+    if variable_type == "review_score":
+        jointDF = pd.concat((old_dataframe['delivery_days'], dataframe['review_score']), axis=1)
+        fig = heatmap(jointDF)
+        return fig
+    else:
+        return plot(dataframe, variable_type)
+
+
+def bivariate_tab(dataframe):
     old_dataframe = dataframe
 
     # EDA: BIVARIATE PLOTS
@@ -27,51 +56,6 @@ def biplot():
         "deliver against delivery duration. Select the variable from the drop down menu below to view it's Bivariate "
         "plot..")
 
-    # select box to choose variable to plot against delivery duration
-    types2 = (
-        "Price",
-        "Volume",
-        "Weight",
-        "Freight value",
-        "Review Rating",
-    )  # maybe add 'Boxplot' after fixes
-    variable_type2 = st.selectbox("Choose your variable", types2)
-
-    # function to display plot and compute analysis based on summary statistics
-    def show_biplot(kind: str):
-        st.write(kind)
-        if kind == "Price":
-            variable = "price"
-            plot(dataframe, variable)
-        elif kind == "Volume":
-            variable = "volume"
-            plot(dataframe, variable)
-        elif kind == "Weight":
-            variable = "product_weight_g"
-            plot(dataframe, variable)
-        elif kind == "Freight value":
-            variable = "freight_value"
-            plot(dataframe, variable)
-        elif kind == "Review Rating":
-            jointDF = pd.concat((old_dataframe['delivery_days'], dataframe['review_score']), axis=1)
-            fig5 = plt.figure()
-            sb.heatmap(jointDF.corr(), vmin=-1, vmax=1, annot=True, fmt=".2f")
-            st.pyplot(fig5)
-            st.write(
-                "This data is more categorical than it is numerical. Hence, a correlation heatmap was made instead of "
-                "a scatter plot.")
-            cor = dataframe["delivery_days"].corr(dataframe["review_score"])
-            st.write("The correlation of delivery days and review score is", cor)
-
-    # function to remove outliers
-    def remove_outlier_IQR(df):
-        Q1 = df.quantile(0.25)
-        Q3 = df.quantile(0.75)
-        IQR = Q3 - Q1
-        df_final = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR)))]
-        return df_final
-
-    # calling above function and branching according to user input
     outlier = st.checkbox('Remove Outliers')
     if outlier:
         dataframe = remove_outlier_IQR(dataframe)
@@ -79,8 +63,18 @@ def biplot():
     else:
         dataframe = old_dataframe
 
+    # select box to choose variable to plot against delivery duration
+    variable_types = ["price",
+                      "volume",
+                      "product_weight_g",
+                      "freight_value",
+                      "review_score"]
+    # maybe add 'Boxplot' after fixes
+    variable_type = st.selectbox("Choose your variable", variable_types)
+
     # command to show plot + analysis
-    show_biplot(kind=variable_type2)
+    st.write(bivariate_plot(dataframe, variable_type, old_dataframe))
+    st.write("The correlation of", variable_type, "against delivery_days is: ", bivariate_cor(dataframe, variable_type, old_dataframe))
 
     # MULTIVARIABLE STATISTICS
     st.write('## Exploratory Data Analysis: Multivariate Plots')
@@ -95,11 +89,9 @@ def biplot():
 
     # correlation heatmap
     st.write('### Correlation: Heatmap')
-    fig7 = plt.figure(figsize=(12, 12))
     numDF = pd.DataFrame(dataframe[['delivery_days', 'price', 'volume', 'product_weight_g', 'freight_value',
                                     'review_score']])
-    sb.heatmap(numDF.corr(), vmin=-1, vmax=1, annot=True, fmt=".2f")
-    st.pyplot(fig7)
+    st.write(heatmap(numDF))
 
     # explanation + analysis on correlation heatmap
     st.write("Here we focus on the first row, since we want to explore the correlation of various variables with "

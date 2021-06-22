@@ -1,12 +1,12 @@
 # Basic Libraries
 import streamlit as st
+import pandas as pd
 import seaborn as sb
 
 sb.set()  # set the default Seaborn style for graphics
 
 
 def home(dataframe):
-    #dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
     st.title("Analysing O-list's Delivery Service")
     st.write("O-list is a Brazilian based e-commerce company that provides a platform for both sellers to display and "
              "buyers to buy various types of products. This investigation takes a data driven approach to analyse and "
