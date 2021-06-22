@@ -34,9 +34,8 @@ def bivariate_cor(dataframe, variable_type, old_dataframe):
 
 
 # function to display plot
-@st.cache
 def bivariate_plot(dataframe, variable_type, old_dataframe):
-    if variable_type == "review_score":
+    if variable_type == 'review_score':
         jointDF = pd.concat((old_dataframe['delivery_days'], dataframe['review_score']), axis=1)
         fig = heatmap(jointDF)
         return fig

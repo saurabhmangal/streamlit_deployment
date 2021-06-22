@@ -22,16 +22,14 @@ def uni_plot(series, variable_type, plot_type):
 
     return (fig)
 
-
 @st.cache
 def count_plot(series, variable_type):
     fig, axes = plt.subplots(figsize=(5, 5))
-    sb.countplot(x=series(variable_type))
+    sb.countplot(x=series[variable_type])
     return fig
 
-
-@st.cache
-def remove_outlier_IQR(series, var_type):
+@st.cache(allow_output_mutation=True)
+def remove_outlier_IQR(series):
     Q1 = series.quantile(0.25)
     Q3 = series.quantile(0.75)
     IQR = Q3 - Q1
@@ -45,12 +43,15 @@ def streamlit_uni_analysis(series, variable_type, plot_type):
         st.write("Since Review Scores can only hold values from 1 to 5, this is a categorical variable. Hence it would "
                  "be more accurate to conduct categorical univariate statistics, as in with a count plot, as opposed "
                  "to conventional numerical plots like box plot,histogram and violin plot.")
-        st.write(count_plot(series, 'review_score'))
+        fig, axes = plt.subplots(figsize=(5, 5))
+        sb.countplot(x = 'review_score', data = series)
+        st.write(fig)
     else:
         st.write(uni_plot(series, variable_type, plot_type))  # .show()
 
     st.subheader("Basic Summary Statistics")
-    st.write("FOllowing are the statistical observations for:", variable_type)
+    st.write("Following are the statistical observations for:", variable_type)
+    series = series[variable_type]
     st.write(series.describe())
 
     std = int(series.std())
@@ -97,10 +98,10 @@ def univariate_tab(dataframe):
     # variable_type = "review_score"
 
     if outlier:
-        series_wo_outlier = remove_outlier_IQR(dataframe[variable_type], variable_type)
+        series_wo_outlier = remove_outlier_IQR(dataframe[variable_type])
         streamlit_uni_analysis(series_wo_outlier, variable_type, plot_type)
     else:
-        streamlit_uni_analysis(dataframe[variable_type], variable_type, plot_type)
+        streamlit_uni_analysis(dataframe, variable_type, plot_type)
 
 #     if (variable_type != "review_score"):
 #         st.write(uni_plot(dataframe[variable_type], variable_type,plot_type))#.show()
