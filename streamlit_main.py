@@ -30,8 +30,9 @@ options = st.sidebar.radio('Select a page:',
      'Geospatial Plots & Analysis',
      'Machine Learning',
      'Conclusion and Recommendation'])
+
 if options == 'Home':
-    home.home()
+    home.home(dataframe)
     
 elif options == 'Univariate Plots':
     univariate.univariate_tab(dataframe)
@@ -40,7 +41,7 @@ elif options == 'Bivariate & Multivariate Plots':
     bivariate.bivariate_tab(dataframe)
 
 elif options == 'Geospatial Plots & Analysis':
-    geoplot.geo()
+    geoplot.geo(dataframe)
 
 elif options == 'Machine Learning':
     MLtab.ML_tab(dataframe)
