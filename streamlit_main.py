@@ -26,8 +26,6 @@ color: #ffffff;
 """,
 unsafe_allow_html=True,)
 
-st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='expanded')
-
 # creating individual dataframes for all numerical variables
 dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 #pricedf = pd.DataFrame(dataframe['price'])
