@@ -13,7 +13,7 @@ sb.set()  # set the default Seaborn style for graphics
 st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='expanded')
 
 # creating individual dataframes for all numerical variables
-#dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
+dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 #pricedf = pd.DataFrame(dataframe['price'])
 #freightdf = pd.DataFrame(dataframe['freight_value'])
 #volumedf = pd.DataFrame(dataframe['volume'])
@@ -32,14 +32,19 @@ options = st.sidebar.radio('Select a page:',
      'Conclusion and Recommendation'])
 if options == 'Home':
     home.home()
+    
 elif options == 'Univariate Plots':
     univariate.univariate_tab(dataframe)
+
 elif options == 'Bivariate & Multivariate Plots':
     bivariate.bivariate_tab(dataframe)
+
 elif options == 'Geospatial Plots & Analysis':
     geoplot.geo()
+
 elif options == 'Machine Learning':
     MLtab.ML_tab(dataframe)
+
 elif options == 'Conclusion and Recommendation':
     conclusion.rec()
 
