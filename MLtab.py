@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from math import sin, cos, sqrt, atan2, radians
 from sklearn import metrics
+from univariate import *
 
 sb.set()  # set the default Seaborn style for graphics
 
@@ -84,19 +85,56 @@ def residual(y_train, y_train_pred, y_test, y_test_pred):
     sb.residplot(y_test, y_test_pred, ax=axes[1])
     return f
 
+def remove_outlier_dataframe(dataframe):
+    for i in list(dataframe):
+            dataframe[i] = remove_outlier_IQR(dataframe[i])
+            dataframe.dropna(inplace=True)
+    return (dataframe)
 
-def Linear_model(dataframe, X, y):
+def drop_column(dataframe, column_name):
+    return(dataframe.drop([column_name],axis=1))
+
+def Linear_model(dataframe):
+    
+    vals_consider = ["delivery_days","freight_value", "price", "volume", "product_weight_g", "distance"]
+    
     st.write("## Multivariate Linear Regression")
-
+    # x_val = ["freight_value", "price", "volume", "product_weight_g", "distance"]
+    # y_val = ["delivery_days"]
+    
+    dataframe = dataframe[vals_consider].copy()
+    # check box to remove outliers
+    
     # check box asking user whether they want to consider distance as a parameter
     distancecb = st.checkbox("Include 'distance' as a parameter to improve R^2 value")
-    if distancecb:
-        y = pd.DataFrame(dataframe["delivery_days"])
-        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
-    else:
-        y = pd.DataFrame(dataframe["delivery_days"])
-        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g"]])
+    if not distancecb:
+        st.write("distance check box done")
+        dataframe = drop_column(dataframe, "distance")
+        
+    st.write(list(dataframe))
+    
+    st.write(list(dataframe))
+    st.write(len(dataframe))
+    st.write(dataframe.isna().sum())
+    
+    outlierCB = st.checkbox("Remove Outliers")
+    if outlierCB:
+        st.write("Outlier chek box working")
+        dataframe = remove_outlier_dataframe(dataframe)
+    
+    st.write(list(dataframe))
+    st.write(len(dataframe))
+    st.write(dataframe.isna().sum())
+    
+       
+    
+    
+    y = pd.DataFrame(dataframe["delivery_days"])
+    X = dataframe[dataframe.columns.drop('delivery_days')]
 
+    
+    st.write(list(X))
+    
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
     st.write("### Visualising predicted and actual data")
@@ -133,11 +171,37 @@ def Linear_model(dataframe, X, y):
 
 
 # RANDOM FOREST REGRESSION
-def RandomForest_model(dataframe, X, y):
+def RandomForest_model(dataframe):
+    
+    y = pd.DataFrame(dataframe["delivery_days"])
+    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+    
     st.write("## Random Forest Regression")
+
+    old_dataframe = dataframe
+    # check box to remove outliers
+    outlierCB = st.checkbox("Remove Outliers")
+    if outlierCB:
+        dataframe = remove_outlier_IQR(dataframe)
+    else:
+        dataframe = old_dataframe
+
+    y = pd.DataFrame(dataframe["delivery_days"])
+    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+
+    # check box asking user whether they want to consider distance as a parameter
+    distancecb = st.checkbox("Include 'distance' as a parameter to improve R^2 value")
+    if distancecb:
+        y = pd.DataFrame(dataframe["delivery_days"])
+        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+    else:
+        y = pd.DataFrame(dataframe["delivery_days"])
+        X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g"]])
 
     # splitting data into train and test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)  # Feature Scaling
+
+    st.write("### Visualising predicted and actual data")
 
     # Create a Gaussian Classifier
     from sklearn.ensemble import RandomForestClassifier
@@ -171,10 +235,57 @@ def ML_tab(dataframe):
     model_type = st.selectbox("Choose your model", models)
 
     dataframe = calculate_distance(dataframe)
-    y = pd.DataFrame(dataframe["delivery_days"])
-    X = pd.DataFrame(dataframe[["freight_value", "price", "volume", "product_weight_g", "distance"]])
+    
+    st.write(list(dataframe))
 
     if model_type == "Linear Regression":
-        Linear_model(dataframe, X, y)
+        Linear_model(dataframe)
     elif model_type == "Random Forest Regression":
-        RandomForest_model(dataframe, X, y)
+        RandomForest_model(dataframe)
+
+
+# from sklearn.preprocessing import StandardScaler
+# sc = StandardScaler()
+
+# Import the model we are using
+# from sklearn.ensemble import RandomForestRegressor
+# Instantiate model with 1000 decision trees
+# rf = RandomForestRegressor(n_estimators=400, random_state=0)
+# Train the model on training data
+# rf.fit(X_train, y_train)
+
+# Make predictions on the test set
+# Use the forest's predict method on the test data
+# y_pred = rf.predict(X_test)
+
+# Visualising a single decision tree
+# Import tools needed for visualization
+# Pull out one tree from the forest
+# tree = rf.estimators_[5]
+#  st.write(tree)
+
+from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import RandomForestRegressor
+#  from sklearn.metrics import accuracy_score, f1_score
+
+#  model = RandomForestRegressor(max_depth=5, max_features=None, n_jobs=-1)
+#  model.fit(X_train, y_train)
+
+# tree = model.estimators_[5]
+# st.write(model)
+
+#  y_train_pred = model.predict(X_train)
+#  y_test_pred = model.predict(X_test)
+# train_accuracy = accuracy_score(y_train, y_train_pred)
+# test_accuracy = accuracy_score(y_test, y_test_pred)
+
+# a = [0.03623213, -1.8993383, 0.00532808]
+
+#  for i in range(0, 28948):
+# value = a[0] * df3.loc[i, 'freight_value'] + a[1] * df3.loc[i, 'review_score'] + a[2] * df3.loc[
+#     i, 'distance'] + 16.143208754
+# df3.loc[i, 'estimated_ML'] = value
+
+# actual_delivery = df3['delivery_days']
+# given_estimate = df3['estimated_days']
+# ML_estimate = df3['estimated_ML']

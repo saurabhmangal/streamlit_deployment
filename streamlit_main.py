@@ -26,20 +26,6 @@ color: #ffffff;
 """,
 unsafe_allow_html=True,)
 
-# Code for grey sidebar
-st.markdown(
-"""
-<style>
-.css-1aumxhk {
-background-color: #404040;
-background-image: none;
-color: #ffffff;
-}
-</style>
-""",
-unsafe_allow_html=True,)
-
-
 # creating individual dataframes for all numerical variables
 dataframe = pd.read_csv("ExportDataFrame.csv", header=0)
 #pricedf = pd.DataFrame(dataframe['price'])
